@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Staff\Circles;
 
+use App\Services\Forms\AnswerDetailsService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Eloquents\Circle;
@@ -24,10 +25,16 @@ class UpdateAction extends Controller
      */
     private $circlesService;
 
-    public function __construct(User $user, CirclesService $circlesService)
+    /**
+     * @var AnswerDetailsService
+     */
+    private $answerDetailService;
+
+    public function __construct(User $user, CirclesService $circlesService, AnswerDetailsService $answerDetailsService)
     {
         $this->user = $user;
         $this->circlesService = $circlesService;
+        $this->answerDetailService = $answerDetailsService;
     }
 
     public function __invoke(Circle $circle, CircleRequest $request)
@@ -109,15 +116,28 @@ class UpdateAction extends Controller
                 ->withErrors(['tags' => $e->getMessage()]);
         }
 
+        $custom_form_answer = $circle->getCustomFormAnswer();
+        $custom_form_answer_details = $this->answerDetailService->getAnswerDetailsByAnswer($custom_form_answer);
+
         if ($status_changed === true) {
             $circle->load('users');
             if ($circle->status === Circle::STATUS_APPROVED) {
                 foreach ($circle->users as $user) {
-                    $this->circlesService->sendApprovedEmail($user, $circle);
+                    $this->circlesService->sendApprovedEmail(
+                        $user,
+                        $circle,
+                        $custom_form_answer,
+                        $custom_form_answer_details
+                    );
                 }
             } elseif ($circle->status === Circle::STATUS_REJECTED) {
                 foreach ($circle->users as $user) {
-                    $this->circlesService->sendRejectedEmail($user, $circle);
+                    $this->circlesService->sendRejectedEmail(
+                        $user,
+                        $circle,
+                        $custom_form_answer,
+                        $custom_form_answer_details
+                    );
                 }
             }
         }

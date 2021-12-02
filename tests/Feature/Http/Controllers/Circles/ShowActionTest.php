@@ -224,4 +224,21 @@ class ShowActionTest extends BaseTestCase
         $response->assertOk();
         $response->assertDontSee('使用場所');
     }
+
+    /**
+     * @test
+     */
+    public function カスタムフォームがない場合はカスタムフォームに関する情報は表示されない()
+    {
+        $response = $this
+            ->actingAs($this->user)
+            ->withSession(['user_reauthorized_at' => now()])
+            ->get(
+                route('circles.show', [
+                    'circle' => $this->circle
+                ])
+            );
+        $response->assertOk();
+        $response->assertDontSee('冬の新歓の参加形態');
+    }
 }

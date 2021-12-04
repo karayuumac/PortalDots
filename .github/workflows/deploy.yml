@@ -1,0 +1,20 @@
+name: deploy
+on:
+  push:
+    branches:
+      - deployment
+
+jobs:
+  deploy:
+    name: samople-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: deploy
+        run: bash deploy.sh

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Circles;
 
+use App\Eloquents\CustomForm;
 use App\Eloquents\User;
 use App\Eloquents\Circle;
 use App\Eloquents\Place;
@@ -189,36 +190,51 @@ class CirclesService
         });
     }
 
-    public function sendSubmitedEmail(User $user, Circle $circle)
+    public function sendSubmitedEmail(User $user, Circle $circle, $answer, $answer_details)
     {
+        $form = CustomForm::getFormByType('circle');
+
         Mail::to($user)
         ->send(
             (new SubmitedMailable(
                 $circle,
+                $form->questions()->get(),
+                $answer,
+                $answer_details
             ))
                 ->replyTo(config('portal.contact_email'), config('portal.admin_name'))
                 ->subject("【参加登録】「{$circle->name}」の参加登録を提出しました")
         );
     }
 
-    public function sendApprovedEmail(User $user, Circle $circle)
+    public function sendApprovedEmail(User $user, Circle $circle, $answer, $answer_details)
     {
+        $form = CustomForm::getFormByType('circle');
+
         Mail::to($user)
         ->send(
             (new ApprovedMailable(
                 $circle,
+                $form->questions()->get(),
+                $answer,
+                $answer_details,
             ))
                 ->replyTo(config('portal.contact_email'), config('portal.admin_name'))
                 ->subject("【受理】「{$circle->name}」の参加登録が受理されました")
         );
     }
 
-    public function sendRejectedEmail(User $user, Circle $circle)
+    public function sendRejectedEmail(User $user, Circle $circle, $answer, $answer_details)
     {
+        $form = CustomForm::getFormByType('circle');
+
         Mail::to($user)
         ->send(
             (new RejectedMailable(
                 $circle,
+                $form->questions()->get(),
+                $answer,
+                $answer_details,
             ))
                 ->replyTo(config('portal.contact_email'), config('portal.admin_name'))
                 ->subject("【不受理】「{$circle->name}」の参加登録は受理されませんでした")

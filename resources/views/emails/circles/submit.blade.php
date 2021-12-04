@@ -16,6 +16,7 @@
   - {{ $user->name }}({{ $user->student_id }})
 @endif
 @endforeach
+@include('emails.circles.include.custom_form_info')
 @endcomponent
 
 

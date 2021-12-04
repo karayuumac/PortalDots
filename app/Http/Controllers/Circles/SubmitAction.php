@@ -5,15 +5,18 @@ namespace App\Http\Controllers\Circles;
 use App\Http\Controllers\Controller;
 use App\Eloquents\Circle;
 use App\Services\Circles\CirclesService;
+use App\Services\Forms\AnswerDetailsService;
 use Illuminate\Support\Facades\Auth;
 
 class SubmitAction extends Controller
 {
     private $circlesService;
+    private $answerDetailService;
 
-    public function __construct(CirclesService $circlesService)
+    public function __construct(CirclesService $circlesService, AnswerDetailsService $answerDetailsService)
     {
         $this->circlesService = $circlesService;
+        $this->answerDetailService = $answerDetailsService;
     }
 
     public function __invoke(Circle $circle)
@@ -35,8 +38,11 @@ class SubmitAction extends Controller
 
         $circle->load('users');
 
+        $custom_form_answer = $circle->getCustomFormAnswer();
+        $custom_form_answer_details = $this->answerDetailService->getAnswerDetailsByAnswer($custom_form_answer);
+
         foreach ($circle->users as $user) {
-            $this->circlesService->sendSubmitedEmail($user, $circle);
+            $this->circlesService->sendSubmitedEmail($user, $circle, $custom_form_answer, $custom_form_answer_details);
         }
 
         return redirect()

@@ -7,14 +7,14 @@
         ] as $field_name => $display_name)
         <dt>{{ $display_name }}
             @if (Auth::user()->isLeaderInCircle($circle) && Gate::allows('circle.update', $circle))
-            — <a href="{{ route('circles.edit', ['circle' => $circle]) }}">変更</a>
+                — <a href="{{ route('circles.edit', ['circle' => $circle]) }}">変更</a>
             @endif
         </dt>
         <dd>{{ $circle->$field_name }}</dd>
     @endforeach
     <dt>メンバー
         @if (Auth::user()->isLeaderInCircle($circle) && Gate::allows('circle.update', $circle))
-         — <a href="{{ route('circles.users.index', ['circle' => $circle]) }}">変更</a>
+            — <a href="{{ route('circles.users.index', ['circle' => $circle]) }}">変更</a>
         @endif
     </dt>
     <dd>
@@ -45,5 +45,33 @@
                 @endforeach
             </ul>
         </dd>
+    @endunless
+    @isset($questions)
+        @foreach($questions as $question)
+            {{-- heading はそもそも不要. upload は複雑なので後回し --}}
+            @unless($question->type == 'upload' || $question->type == 'heading')
+                {{-- 選択必須でない単一回答や複数回答に選択しなかった場合, answer_details が作成されないのでその対策 --}}
+                @if(array_key_exists($question->id, $answer_details) && $answer_details[$question->id] != '')
+                    <dt>
+                        {{ $question->name }}
+                    </dt>
+                    @if(gettype($answer_details[$question->id]) == 'array')
+                        <dd>
+                            <ul>
+                                @foreach($answer_details[$question->id] as $answer)
+                                    <li>
+                                        {{ $answer }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </dd>
+                    @else
+                        <dd>
+                            {{ $answer_details[$question->id] }}
+                        </dd>
+                    @endif
+                @endunless
+            @endunless
+        @endforeach
     @endunless
 </dl>

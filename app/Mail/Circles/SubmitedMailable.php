@@ -14,15 +14,21 @@ class SubmitedMailable extends Mailable
     use SerializesModels;
 
     public $circle;
+    public $questions;
+    public $answer;
+    public $answer_details;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Circle $circle)
+    public function __construct(Circle $circle, $questions, $answer, $answer_details)
     {
         $this->circle = $circle;
+        $this->questions = $questions;
+        $this->answer = $answer;
+        $this->answer_details = $answer_details;
     }
 
     /**

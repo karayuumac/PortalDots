@@ -1,2 +1,2 @@
-rsync -acvz --delete ./ root@160.251.21.51
-ssh root@160.251.21.51 "yarn install; cp .env.example .env; php artisan key:generate; yarn docker; yarn migrate; yarn docker-bash; composer install; exit; yarn hot"
+rsync -acvz --delete ./ karayuu@118.27.6.30:~/dev --exclude 'node_modules' --exclude 'vendor' --exclude '.git' --exclude '.husky' --exclude 'docker_dev/data' --exclude 'storage'
+ssh karayuu@118.27.6.30 "cd ~/dev; yarn install; yarn docker; cd docker_dev/ && docker-compose exec -T web composer install; cd ..; cp .env.example .env; cd docker_dev && docker-compose exec -T web php artisan key:generate; cd ..; yarn migrate; yarn dev"

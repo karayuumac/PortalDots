@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  web:
+    container_name: portal_web_deploy
+    platform: linux/amd64
+    build: ./web
+    ports:
+      - 80:80
+    volumes:
+      - ../:/var/www/html:cached
+      - ./data/web/logs:/docker_web_logs:cached
+
+  db:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: portal_db_deploy
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: db_portal_dev
+      MYSQL_USER: default
+      MYSQL_PASSWORD: default
+      TZ: 'Asia/Tokyo'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-use-native-aio=0
+    volumes:
+      - ./data/db:/var/lib/mysql:cached
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf:cached
+    ports:
+      - 4306:3306
+
+  db-testing:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: portal_db_testing_deploy
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: db_portal_dev
+      MYSQL_USER: default
+      MYSQL_PASSWORD: default
+      TZ: 'Asia/Tokyo'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-use-native-aio=0
+    tmpfs:
+      - /var/lib/mysql
+    volumes:
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf:cached
+    ports:
+      - 5306:3306
+
+  phpmyadmin:
+    container_name: portal_phpmyadmin_deploy
+    image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
+    environment:
+      - PMA_HOSTS=portal_db
+    ports:
+      - 8080:80
+
+  mailhog:
+    container_name: portal_mailhog_deploy
+    image: mailhog/mailhog
+    platform: linux/amd64
+    ports:
+      - 1025:1025
+      - 8025:8025

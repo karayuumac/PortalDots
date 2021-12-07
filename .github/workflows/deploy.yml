@@ -4,6 +4,9 @@ on:
     branches:
       - development
 
+env:
+  MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+
 jobs:
   deploy:
     name: sample-deploy
@@ -16,5 +19,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
       - name: deploy
-        run: bash deploy.sh
+        run: bash deploy.sh ${{ secrets.MYSQL_ROOT_PASSWORD }}

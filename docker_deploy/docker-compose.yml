@@ -51,7 +51,7 @@ services:
     image: phpmyadmin/phpmyadmin
     platform: linux/amd64
     environment:
-      - PMA_HOSTS=portal_db
+      - PMA_HOSTS=portal_db_deploy
     ports:
       - 8080:80
 
